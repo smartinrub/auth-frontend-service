@@ -1,4 +1,5 @@
 import React from 'react';
+import Cookies from 'universal-cookie';
 
 class LoginForm extends React.Component {
 
@@ -22,24 +23,28 @@ class LoginForm extends React.Component {
     }
 
     handlerSubmit(event) {
+        const cookies = new Cookies();
+
         fetch('http://localhost:8080/login', {
             method: 'POST',
             headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
+                "Content-Type": "application/json"
             },
             body: JSON.stringify({
                 email: this.state.email,
                 password: this.state.password,
             }),
-        }).then(function(response) {
-            console.log(response.headers.get("Authorization"));
-            console.log(response.status);
-            console.log(response.type);
-            console.log(response.body);
+        }).then(response => {
+            if(!response.ok) {
+                throw response;
+            }
+            return response.text()
+            
+        }).then(value => {
+            cookies.set('token', value, { path: '/' });
         })
         event.preventDefault();
-    }
+        }
 
     render() {
         return(
